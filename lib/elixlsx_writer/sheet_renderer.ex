@@ -34,9 +34,9 @@ defmodule ElixlsxWriter.SheetRenderer do
   end
 
   def render_sheet_footer(sheet) do
+    # make_data_validations(sheet.data_validations) <>
     "</sheetData>" <>
       xl_merge_cells(sheet.merge_cells) <>
-      make_data_validations(sheet.data_validations) <>
       """
       <pageMargins left="0.75" right="0.75" top="1" bottom="1.0" header="0.5" footer="0.5"/>
       </worksheet>
@@ -109,40 +109,40 @@ defmodule ElixlsxWriter.SheetRenderer do
     """
   end
 
-  defp make_data_validations([]) do
-    ""
-  end
+  # defp make_data_validations([]) do
+  #   ""
+  # end
 
-  defp make_data_validations(data_validations) do
-    """
-    <dataValidations count="#{Enum.count(data_validations)}">
-    #{Enum.map(data_validations, &make_data_validation/1)}
-    </dataValidations>
-    """
-  end
+  # defp make_data_validations(data_validations) do
+  #   """
+  #   <dataValidations count="#{Enum.count(data_validations)}">
+  #   #{Enum.map(data_validations, &make_data_validation/1)}
+  #   </dataValidations>
+  #   """
+  # end
 
-  defp make_data_validation({start_cell, end_cell, values}) when is_bitstring(values) do
-    """
-    <dataValidation type="list" allowBlank="1" showErrorMessage="1" sqref="#{start_cell}:#{end_cell}">
-      <formula1>#{values}</formula1>
-    </dataValidation>
-    """
-  end
+  # defp make_data_validation({start_cell, end_cell, values}) when is_bitstring(values) do
+  #   """
+  #   <dataValidation type="list" allowBlank="1" showErrorMessage="1" sqref="#{start_cell}:#{end_cell}">
+  #     <formula1>#{values}</formula1>
+  #   </dataValidation>
+  #   """
+  # end
 
-  defp make_data_validation({start_cell, end_cell, values}) do
-    joined_values =
-      values
-      |> Enum.join(",")
-      |> String.codepoints()
-      |> Enum.chunk_every(255)
-      |> Enum.join("&quot;&amp;&quot;")
+  # defp make_data_validation({start_cell, end_cell, values}) do
+  #   joined_values =
+  #     values
+  #     |> Enum.join(",")
+  #     |> String.codepoints()
+  #     |> Enum.chunk_every(255)
+  #     |> Enum.join("&quot;&amp;&quot;")
 
-    """
-    <dataValidation type="list" allowBlank="1" showErrorMessage="1" sqref="#{start_cell}:#{end_cell}">
-      <formula1>&quot;#{joined_values}&quot;</formula1>
-    </dataValidation>
-    """
-  end
+  #   """
+  #   <dataValidation type="list" allowBlank="1" showErrorMessage="1" sqref="#{start_cell}:#{end_cell}">
+  #     <formula1>&quot;#{joined_values}&quot;</formula1>
+  #   </dataValidation>
+  #   """
+  # end
 
   defp xl_sheet_rows(data, row_heights, grouping_info, wci, start_idx) do
     rows =
@@ -155,7 +155,7 @@ defmodule ElixlsxWriter.SheetRenderer do
         </row>
         """
       end)
-    |> Enum.join()
+      |> Enum.join()
 
     if (length(data) + 1) in grouping_info.collapsed_idxs do
       rows <>
@@ -265,7 +265,7 @@ defmodule ElixlsxWriter.SheetRenderer do
             &1 in grouping_info.collapsed_idxs
           })
         )
-      |> Enum.join()
+        |> Enum.join()
 
       "<cols>#{cols}</cols>"
     else
