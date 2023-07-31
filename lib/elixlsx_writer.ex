@@ -14,7 +14,7 @@ defmodule ElixlsxWriter do
       |> Enum.zip(wci.sheet_info)
       |> Map.new(fn {sheet, sci} -> {sheet.name, SheetWriter.new(sheet, sci, tmp_dir)} end)
 
-    %IncWriter{
+    %ElixlsxWriter{
       workbook: workbook,
       wci: wci,
       temp_dir: tmp_dir,
@@ -23,7 +23,7 @@ defmodule ElixlsxWriter do
     }
   end
 
-  def initialize(%IncWriter{} = writer) do
+  def initialize(%ElixlsxWriter{} = writer) do
     sheet_writers =
       Map.new(writer.workbook.sheets, fn sheet ->
         sheet_writer = writer.sheet_writers |> Map.get(sheet.name) |> SheetWriter.initialize(writer.wci)
@@ -34,13 +34,13 @@ defmodule ElixlsxWriter do
     %{writer | sheet_writers: sheet_writers}
   end
 
-  def increment_write(%IncWriter{} = writer, sheet_name, rows) do
+  def increment_write(%ElixlsxWriter{} = writer, sheet_name, rows) do
     wci = Compiler.compinfo_from_rows(writer.wci, rows)
     sheet_writer = SheetWriter.write(writer.sheet_writers[sheet_name], rows, wci)
     %{writer | wci: wci, sheet_writers: Map.put(writer.sheet_writers, sheet_name, sheet_writer)}
   end
 
-  def finalize(%IncWriter{} = writer) do
+  def finalize(%ElixlsxWriter{} = writer) do
     # complete writing all sheets
     Enum.each(writer.sheet_writers, fn {_, sheet_writer} ->
       SheetWriter.finalize(sheet_writer)
@@ -74,7 +74,7 @@ defmodule ElixlsxWriter do
     rs
   end
 
-  def discard(%IncWriter{} = writer) do
+  def discard(%ElixlsxWriter{} = writer) do
     Enum.each(writer.sheet_writers, fn {_, sheet_writer} ->
       SheetWriter.discard(sheet_writer)
     end)
@@ -82,7 +82,7 @@ defmodule ElixlsxWriter do
     cleanup(writer)
   end
 
-  defp cleanup(%IncWriter{} = writer) do
+  defp cleanup(%ElixlsxWriter{} = writer) do
     File.rm_rf(writer.temp_dir)
   end
 end
