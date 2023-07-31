@@ -16,8 +16,7 @@ Benchee.run(
       |> Workbook.append_sheet(sheet2)
       |> Workbook.append_sheet(sheet3)
 
-      writer = ElixlsxWriter.new(wb, "output/hello2.xlsx")
-      |> ElixlsxWriter.initialize()
+      writer = ElixlsxWriter.init(wb, "output/hello2.xlsx")
 
       writer = "priv/test.csv"
       |> File.stream!(read_ahead: 100_000)

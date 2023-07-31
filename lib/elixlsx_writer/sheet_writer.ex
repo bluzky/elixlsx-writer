@@ -6,16 +6,19 @@ defmodule ElixlsxWriter.SheetWriter do
 
   defstruct file_path: nil, sheet: nil, last_idx: 0, file_handler: nil
 
-  def new(sheet, %SheetCompInfo{} = sci, directory) do
-    %SheetWriter{sheet: sheet, file_path: Path.join(directory, sheet_full_path(sci))}
-  end
+  def init(sheet, %SheetCompInfo{} = sci, wci, directory) do
+    writer = %SheetWriter{sheet: sheet, file_path: Path.join(directory, sheet_full_path(sci))}
 
-  def initialize(%SheetWriter{} = writer, wci) do
-    data = SheetRenderer.render_sheet_header(writer.sheet)
+    # create directory if not exists and open file
     ElixlsxWriter.Helpers.create_directory_if_not_exists(writer.file_path)
     file = File.open!(writer.file_path, [:write])
     writer = %{writer | file_handler: file}
+
+    # write header
+    data = SheetRenderer.render_sheet_header(writer.sheet)
     IO.write(file, data)
+
+    # write existing rows
     write(writer, writer.sheet.rows, wci)
   end
 

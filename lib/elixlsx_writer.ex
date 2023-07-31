@@ -5,14 +5,16 @@ defmodule ElixlsxWriter do
 
   defstruct workbook: nil, wci: nil, sheet_writers: %{}, temp_dir: nil, output_file: nil
 
-  def new(workbook, output_file) do
+  def init(workbook, output_file) do
     wci = Compiler.make_workbook_comp_info(workbook)
     tmp_dir = Path.join(System.tmp_dir!(), "xlsx-#{:rand.uniform(10_000_000)}")
 
     sheet_writers =
       workbook.sheets
       |> Enum.zip(wci.sheet_info)
-      |> Map.new(fn {sheet, sci} -> {sheet.name, SheetWriter.new(sheet, sci, tmp_dir)} end)
+      |> Map.new(fn {sheet, sci} ->
+        {sheet.name, SheetWriter.init(sheet, sci, wci, tmp_dir)}
+      end)
 
     %ElixlsxWriter{
       workbook: workbook,
@@ -21,17 +23,6 @@ defmodule ElixlsxWriter do
       sheet_writers: sheet_writers,
       output_file: output_file
     }
-  end
-
-  def initialize(%ElixlsxWriter{} = writer) do
-    sheet_writers =
-      Map.new(writer.workbook.sheets, fn sheet ->
-        sheet_writer = writer.sheet_writers |> Map.get(sheet.name) |> SheetWriter.initialize(writer.wci)
-
-        {sheet.name, sheet_writer}
-      end)
-
-    %{writer | sheet_writers: sheet_writers}
   end
 
   def increment_write(%ElixlsxWriter{} = writer, sheet_name, rows) do
