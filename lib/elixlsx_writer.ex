@@ -59,7 +59,7 @@ defmodule ElixlsxWriter do
       |> Enum.concat(sheet_files)
       |> Enum.map(fn path -> path |> Path.relative_to(writer.temp_dir) |> String.to_charlist() end)
 
-    rs = :zip.create(to_charlist(writer.output_file), files, cwd: writer.temp_dir)
+    rs = :zip.create(to_charlist(writer.output_file), files, cwd: to_charlist(writer.temp_dir))
 
     cleanup(writer)
     rs
